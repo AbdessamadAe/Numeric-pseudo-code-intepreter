@@ -1,0 +1,23 @@
+sign | digit | Operation          | Format              | Example              | What it does
+-----|-------|--------------------|---------------------|----------------------|-------------------------------------------
+ +   |   0   | MOVE (copy)        | +0 source 000 dest  | +0 100 000 200       | Copy value from location 100 to 200
+ +   |   1   | ADD                | +1 src1 src2 dest   | +1 100 150 200       | 200 = 100 + 150
+ +   |   2   | MULTIPLY           | +2 src1 src2 dest   | +2 100 150 200       | 200 = 100 × 150  
+ +   |   3   | SQUARE             | +3 source dest      | +3 100 200           | 200 = 100²
+ +   |   4   | JUMP-IF-EQUAL      | +4 src1 src2 label  | +4 100 150 025       | If 100 == 150, jump to instruction 025
+ +   |   5   | JUMP-IF-G-OR-EQUAL | +5 src1 src2 label  | +5 100 150 025       | If 100 >= 150, jump to instruction 025
+ +   |   6   | ARRAY READ         | +6 base index dest  | +6 300 050 400       | 400 = array[300 + value_at(050)]
+ +   |   7   | INCREMENT-AND-LOOP | +7 index limit loop | +7 010 020 005       | index++; if index < limit, jump to 005
+ +   |   8   | READ INPUT         | +8 000 000 dest     | +8 000 000 100       | Read next input value into location 100
+ +   |   9   | STOP               | +9 000 000 000      | +9 000 000 000       | Halt program execution
+
+ -   |   0   | (undefined)        | -0 ???              | (reserved)           | 
+ -   |   1   | SUBTRACT           | -1 src1 src2 dest   | -1 100 150 200       | 200 = 100 - 150
+ -   |   2   | DIVIDE             | -2 src1 src2 dest   | -2 100 150 200       | 200 = 100 ÷ 150
+ -   |   3   | SQUARE ROOT        | -3 source dest      | -3 100 200           | 200 = √100
+ -   |   4   | JUMP-IF-NOT-EQUAL  | -4 src1 src2 label  | -4 100 150 025       | If 100 != 150, jump to instruction 025
+ -   |   5   | JUMP-IF-LESS-THAN  | -5 src1 src2 label  | -5 100 150 025       | If 100 < 150, jump to instruction 025
+ -   |   6   | ARRAY WRITE        | -6 src base index   | -6 400 300 050       | array[300 + value_at(050)] = 400
+ -   |   7   | (undefined)        | -7 ???              | (reserved)           | 
+ -   |   8   | PRINT OUTPUT       | -8 source 000 000   | -8 100 000 000       | Print value from location 100
+ -   |   9   | (undefined)        | -9 ???              | (reserved)           | 

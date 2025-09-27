@@ -1,33 +1,36 @@
-// assumption: we intialize constants from 0 to 9 in locations from 0 to 9
-+0 000 000 000
-+0 000 000 000
-+0 000 000 000
-+0 000 000 000
-+0 000 000 000
-+0 000 000 000
-+0 000 000 000
-+0 000 000 000
-+0 000 000 000
-+0 000 000 000
+// assumption: we intialize constants from 0 to 9 in locations from 0 to 9. Assumed to be put
+// by te interpreter
++0 000 000 000 // constant 0
++0 000 000 000 // constant 1
++0 000 000 000 // constant 2
++0 000 000 000 // constant 3
++0 000 000 000 // constant 4
++0 000 000 000 // constant 5
++0 000 000 000 // constant 6
++0 000 000 000 // constant 7
++0 000 000 000 // constant 8
++0 000 000 000 // constant 9 
 +0 000 000 000 // x (loc 10)
-+0 000 000 000 // r
-+0 000 000 000 // t
++0 000 000 000 // result (loc 11)
++0 000 000 000 // temp (loc 12)
 +0 000 000 000 // index, i
 +0 000 000 000 // number of elements in the array
 +0 000 000 000 // array
 +9 999 999 999
 +8 000 000 014 // read number of elements
 +8 000 000 010 // read input into x (loc 1)
--5 010 000 003 // if x is negative, jump to loc 4
+-5 010 000 005 // if x is negative, jump to loc 5
 +2 010 002 011 // double it
 +4 000 000 006 // jump to skip next instr
 +2 010 010 011 // x^2 (loc 5)
 -6 011 015 013 // write result into the array with the same order input is read
-+7 012 013 001 // incr i, test against limit, jump to loc 1
++7 013 014 001 // incr i, test against number of elements, jump to loc 1
 +0 000 000 013 // reset i to 0
 -1 014 001 014 // n = n-1
 -1 014 013 012 // temp = n - i (loc 10)
 +6 015 012 012 // temp = arr[n-i]
 -8 012 000 000 // print temp (= arr[n-i])
-+7 012 013 001 // incr i, test against limit, jump to loc 10
++7 013 014 010 // incr i, test against limit, jump to loc 10
++6 015 000 012 // temp = first element
+-8 012 000 000 // print first element
 +9 000 000 000 // stop
