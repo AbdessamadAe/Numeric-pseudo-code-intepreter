@@ -1,15 +1,5 @@
 // assumption: we intialize constants from 0 to 9 in locations from 0 to 9. Assumed to be put
 // by te interpreter
-+0 000 000 000 // constant 0
-+0 000 000 000 // constant 1
-+0 000 000 000 // constant 2
-+0 000 000 000 // constant 3
-+0 000 000 000 // constant 4
-+0 000 000 000 // constant 5
-+0 000 000 000 // constant 6
-+0 000 000 000 // constant 7
-+0 000 000 000 // constant 8
-+0 000 000 000 // constant 9 
 +0 111 001 000 // x
 +0 112 001 000 // result
 +0 113 001 000 // temp
