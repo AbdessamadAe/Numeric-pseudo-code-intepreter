@@ -1,18 +1,18 @@
 // assumption: we intialize constants from 0 to 9 in locations from 0 to 9. Assumed to be put
 // by te interpreter
 +0 000 000 000 // constant 0
-+0 000 000 001 // constant 1
-+0 000 000 002 // constant 2
-+0 000 000 003 // constant 3
-+0 000 000 004 // constant 4
-+0 000 000 005 // constant 5
-+0 000 000 006 // constant 6
-+0 000 000 007 // constant 7
-+0 000 000 008 // constant 8
-+0 000 000 009 // constant 9 
-+0 000 000 010 // x
-+0 000 000 011 // result
-+0 000 000 012 // temp
++0 000 000 000 // constant 1
++0 000 000 000 // constant 2
++0 000 000 000 // constant 3
++0 000 000 000 // constant 4
++0 000 000 000 // constant 5
++0 000 000 000 // constant 6
++0 000 000 000 // constant 7
++0 000 000 000 // constant 8
++0 000 000 000 // constant 9 
++0 000 000 000 // x
++0 000 000 000 // result
++0 000 000 000 // temp
 +9 999 999 999 // end of data section
 +8 000 000 010 // read x
 +2 010 010 011 // x^2

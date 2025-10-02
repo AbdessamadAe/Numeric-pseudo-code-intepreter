@@ -1,0 +1,6 @@
+1- label variables
++0 [label] [number of slots] [initial value]
+
+
+2- label instrs
+-7 [label] 000 000

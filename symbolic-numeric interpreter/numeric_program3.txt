@@ -1,0 +1,39 @@
+// assumption: we intialize constants from 0 to 9 in locations from 0 to 9. Assumed to be put
+// by te interpreter
++0 000 000 000 // constant 0
++0 000 000 000 // constant 1
++0 000 000 000 // constant 2
++0 000 000 000 // constant 3
++0 000 000 000 // constant 4
++0 000 000 000 // constant 5
++0 000 000 000 // constant 6
++0 000 000 000 // constant 7
++0 000 000 000 // constant 8
++0 000 000 000 // constant 9 
++0 110 001 000 // x (loc 10)
++0 111 001 000 // result (loc 11)
++0 112 001 000 // temp (loc 12)
++0 113 001 000 // index, i
++0 114 001 000 // number of elements in the array
++0 115 050 000 // array with size 50
++9 999 999 999
++8 000 000 114 // read number of elements
+-7 020 000 000 // label next instruction as loc 20
++8 000 000 110 // read input into x (loc 20)
+-5 110 000 005 // if x is negative, jump to loc 25
++2 110 002 111 // double it
++4 000 000 006 // jump to skip next instr
+-7 025 000 000 // label next instruction as loc 25
++2 110 110 111 // x^2 (loc 25)
+-6 111 115 113 // write result into the array with the same order input is read
++7 113 114 001 // incr i, test against number of elements, jump to loc 20
+-1 113 113 113 // reset i to 0
+-1 114 001 114 // n = n-1
+-7 020 000 000 // label next instruction as loc 30
+-1 114 113 112 // temp = n - i (loc 20)
++6 115 112 112 // temp = arr[n-i]
+-8 112 000 000 // print temp (= arr[n-i])
++7 113 114 110 // incr i, test against limit, jump to loc 30
++6 115 000 112 // temp = first element
+-8 112 000 000 // print first element
++9 000 000 000 // stop

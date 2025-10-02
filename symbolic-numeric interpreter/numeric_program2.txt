@@ -1,0 +1,29 @@
+// assumption: we intialize constants from 0 to 9 in locations from 0 to 9. Assumed to be put
+// by te interpreter
++0 000 000 000 // constant 0
++0 000 000 000 // constant 1
++0 000 000 000 // constant 2
++0 000 000 000 // constant 3
++0 000 000 000 // constant 4
++0 000 000 000 // constant 5
++0 000 000 000 // constant 6
++0 000 000 000 // constant 7
++0 000 000 000 // constant 8
++0 000 000 000 // constant 9 
++0 111 001 000 // x
++0 112 001 000 // result
++0 113 001 000 // temp
++0 114 001 000 // index, i
++0 115 001 000 // number of elements
++9 999 999 999
++8 000 000 115 // read number of elements
+-7 020 000 000 // label next instruction as loc 20
++8 000 000 111  read input into x
++2 111 111 112 // x^2
++2 112 003 112 // 3*x^2
++2 111 002 113 // 2*x
++1 113 112 112 // 2*x + 3*x^2
++1 112 001 112 // y
+-8 112 000 000 // print result
++7 114 115 020 // incr i, test against number of elements, jump to loc 20
++9 000 000 000 // stop
