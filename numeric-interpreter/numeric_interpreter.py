@@ -1,11 +1,16 @@
+"""
+Numeric Interpreter
+Authors: Younes Kettani, Abdessamad Ait Elmouden
+"""
+
 import sys
 from enum import Enum
 import re
 
-class section(Enum):
-    CODE = 1
-    DATA = 2
-    INPUT = 3
+# reference for self.section values
+# 1 = data section
+# 2 = code section
+# 3 = input section
 
 class NumericInterpreter:
     def __init__(self, debug=False):
@@ -17,6 +22,12 @@ class NumericInterpreter:
         self.section = 0
         self.input_top = 0
         self.inputs = []
+    
+    def debug_log(self, category, message, indent_level=0):
+        """Structured debug logging with categories and indentation"""
+        if self.debug:
+            indent = "  " * indent_level
+            print(f"DEBUG [{category}]: {indent}{message}")
     
     def initialize_constants(self):
         for i in range(10):
@@ -80,9 +91,9 @@ class NumericInterpreter:
         operand3 = instruction['operand3']
         sign = instruction['sign']
         
-        if self.debug:
-            print(f"DEBUG: PC={self.pc}, Executing: {sign}{op_code} {operand1:03d} {operand2:03d} {operand3:03d}")
-            print(f"DEBUG: Memory[{operand1}]={self.memory[operand1]}, Memory[{operand2}]={self.memory[operand2]}, Memory[{operand3}]={self.memory[operand3]}")
+        # Log instruction execution
+        self.debug_log("EXEC", f"PC={self.pc}, Instruction: {sign}{op_code} {operand1:03d} {operand2:03d} {operand3:03d}")
+        self.debug_log("MEM", f"Before - M[{operand1}]={self.memory[operand1]}, M[{operand2}]={self.memory[operand2]}, M[{operand3}]={self.memory[operand3]}", 1)
         
         if op_code == 0:
             if sign == '+':
@@ -123,29 +134,22 @@ class NumericInterpreter:
                 self.memory[operand2 + self.memory[operand3]] = self.memory[operand1]
         elif op_code == 7:
             if sign == '+':
-                if self.debug:
-                    print(f"DEBUG: Incrementing memory[{operand1}] from {self.memory[operand1]} to {self.memory[operand1] + 1}")
+                self.debug_log("LOOP", f"Incrementing M[{operand1}] from {self.memory[operand1]} to {self.memory[operand1] + 1}", 1)
                 self.memory[operand1] += 1
-                if self.debug:
-                    print(f"DEBUG: Comparing memory[{operand1}]={self.memory[operand1]} < memory[{operand2}]={self.memory[operand2]}")
+                self.debug_log("LOOP", f"Comparing M[{operand1}]={self.memory[operand1]} < M[{operand2}]={self.memory[operand2]}", 1)
                 if self.memory[operand1] < self.memory[operand2]:
-                    if self.debug:
-                        print(f"DEBUG: Jumping to instruction {operand3}")
+                    self.debug_log("JUMP", f"Loop condition true, jumping to instruction {operand3}", 1)
                     self.pc = operand3
                 else:
-                    if self.debug:
-                        print(f"DEBUG: No jump, continuing to next instruction")
+                    self.debug_log("JUMP", f"Loop condition false, continuing to next instruction", 1)
         elif op_code == 8:
             if sign == '+':
-                if self.debug:
-                    print(f"DEBUG: Reading input into memory[{operand3}]")
+                self.debug_log("I/O", f"Reading input into M[{operand3}] (input #{self.input_top})", 1)
                 self.memory[operand3] = int(self.inputs[self.input_top])
                 self.input_top += 1
-                if self.debug:
-                    print(f"DEBUG: Stored {self.memory[operand3]} in memory[{operand3}]")
+                self.debug_log("I/O", f"Stored value {self.memory[operand3]} in M[{operand3}]", 1)
             else:
-                if self.debug:
-                    print(f"DEBUG: Printing memory[{operand1}]={self.memory[operand1]}")
+                self.debug_log("I/O", f"Output: M[{operand1}] = {self.memory[operand1]}", 1)
                 print(self.memory[operand1])
         elif op_code == 9:
             if sign == '+':
@@ -157,26 +161,26 @@ class NumericInterpreter:
         if instructions is None:
             return
         
-        if self.debug:
-            print(f"DEBUG: Starting execution with {len(instructions)} instructions")
+        self.debug_log("INIT", f"Starting execution with {len(instructions)} instructions")
         self.pc = 0
         self.running = True
         
         while self.running and self.pc < len(instructions):
-            if self.debug:
-                print(f"DEBUG: About to execute instruction at PC={self.pc}")
+            self.debug_log("EXEC", f"About to execute instruction at PC={self.pc}")
             instruction = instructions[self.pc]
             old_pc = self.pc
             self.execute_instruction(instruction)
-            if self.pc == old_pc:
+            
+            # Handle program counter updates
+            if self.pc == old_pc: # No jump occurred
                 self.pc += 1
-                if self.debug:
-                    print(f"DEBUG: PC incremented to {self.pc}")
+                self.debug_log("PC", f"Sequential execution: PC incremented to {self.pc}", 1)
             else:
-                if self.debug:
-                    print(f"DEBUG: PC jumped from {old_pc} to {self.pc}")
+                self.debug_log("PC", f"Control flow change: PC jumped from {old_pc} to {self.pc}", 1)
+            
+            self.debug_log("EXEC", "Instruction completed")
             if self.debug:
-                print("---")
+                print()
 
 def main():
     debug = False

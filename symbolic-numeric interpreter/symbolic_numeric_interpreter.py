@@ -1,3 +1,8 @@
+"""
+Symbolic-Numeric Interpreter
+Authors: Younes Kettani, Abdessamad Ait Elmouden
+"""
+
 import sys
 import re
 
@@ -13,7 +18,16 @@ class SymbolicNumericInterpreter:
         self.debug = debug
         self.initialize_constants()
         self.block_execution = False
-        self.queud_label = None
+        self.queued_label = None
+        self.section = 0
+        self.input_top = 0
+        self.inputs = []
+    
+    def debug_log(self, category, message, indent_level=0):
+        """Structured debug logging with categories and indentation"""
+        if self.debug:
+            indent = "  " * indent_level
+            print(f"DEBUG [{category}]: {indent}{message}")
     
     def initialize_constants(self):
         for i in range(10):
@@ -29,8 +43,17 @@ class SymbolicNumericInterpreter:
                     line = line.strip()
                     if line and not line.startswith('//'):
                         instruction = self.parse_instruction(line)
-                        if instruction:
-                            instructions.append(instruction)
+                        if instruction and (instruction['sign'] == '+' and instruction['op_code'] == 9 and instruction['operand1'] == 999 and instruction['operand3'] == 999):
+                                    self.section += 1
+                                    self.debug_log("PARSE", f"Switching to section {self.section}")
+                        else:
+                            if self.section == 0 or self.section == 1:
+                                instructions.append(instruction)
+                            else: # means it's input section
+                                if instruction['sign'] == '+' and instruction['op_code'] == 0:
+                                    self.inputs.append(instruction['operand3'])
+                                elif instruction['sign'] == '-' and instruction['op_code'] == 0:
+                                    self.inputs.append(-1*instruction['operand3'])
             return instructions
         except FileNotFoundError:
             print(f"Error: File '{filename}' not found.")
@@ -68,16 +91,14 @@ class SymbolicNumericInterpreter:
         operand3 = instruction['operand3']
         sign = instruction['sign']
 
-        if self.debug:
-            print(f"DEBUG: PC={self.pc}, Executing: {sign}{op_code} {operand1:03d} {operand2:03d} {operand3:03d}")
+        self.debug_log("EXEC", f"PC={self.pc}, Instruction: {sign}{op_code} {operand1:03d} {operand2:03d} {operand3:03d}")
         
         if not self.block_execution:
             if op_code == 0:
                 if sign == '+':
                     self.variables[operand1] = self.top_memory + 1
                     self.top_memory += operand2
-                    if self.debug:
-                        print(f"DEBUG: Allocated variable {operand1} at memory location {self.variables[operand1]}, top_memory now {self.top_memory}")
+                    self.debug_log("ALLOC", f"Variable {operand1} allocated at memory location {self.variables[operand1]}, top_memory now {self.top_memory}", 1)
             elif op_code == 1:
                 if sign == '+':
                     self.memory[self.variables[operand3]] = self.memory[self.variables[operand1]] + self.memory[self.variables[operand2]]
@@ -101,14 +122,14 @@ class SymbolicNumericInterpreter:
                     if self.memory[self.variables[operand1]] == self.memory[self.variables[operand2]]:
                         if jumpaddress == None:
                             self.block_execution = True
-                            self.queud_label = operand3
+                            self.queued_label = operand3
                         else:
                             self.pc = jumpaddress
                 else:
                     if self.memory[self.variables[operand1]] != self.memory[self.variables[operand2]]:
                         if jumpaddress == None:
                             self.block_execution = True
-                            self.queud_label = operand3
+                            self.queued_label = operand3
                         else:
                             self.pc = jumpaddress
             elif op_code == 5:
@@ -119,64 +140,53 @@ class SymbolicNumericInterpreter:
                     if self.memory[self.variables[operand1]] >= self.memory[self.variables[operand2]]:
                         if jumpaddress == None:
                             self.block_execution = True
-                            self.queud_label = operand3
+                            self.queued_label = operand3
                         else:
                             self.pc = jumpaddress
                 else:
                     if self.memory[self.variables[operand1]] < self.memory[self.variables[operand2]]:
                         if jumpaddress == None:
                             self.block_execution = True
-                            self.queud_label = operand3
+                            self.queued_label = operand3
                         else:
                             self.pc = jumpaddress
             elif op_code == 6:
                 if sign == '+':
-                    if self.debug:
-                        print(f"DEBUG: +6 Load: Calculating array index for load operation")
-                        print(f"DEBUG: constant value is {self.memory[self.variables[operand2]]}")
+                    self.debug_log("ARRAY", f"Load operation: calculating array index", 1)
+                    self.debug_log("ARRAY", f"Offset value: {self.memory[self.variables[operand2]]}", 2)
                     array_index = self.variables[operand1] + self.memory[self.variables[operand2]]
                     self.memory[self.variables[operand3]] = self.memory[array_index]
-                    if self.debug:
-                        print(f"DEBUG: +6 Load: memory[{self.variables[operand3]}] = memory[{array_index}] = {self.memory[array_index]}")
+                    self.debug_log("ARRAY", f"Load: M[{self.variables[operand3]}] = M[{array_index}] = {self.memory[array_index]}", 1)
                 else:
                     array_index = self.variables[operand2] + self.memory[self.variables[operand3]]
                     self.memory[array_index] = self.memory[self.variables[operand1]]
-                    if self.debug:
-                        print(f"DEBUG: -6 Store: memory[{array_index}] = memory[{self.variables[operand1]}] = {self.memory[self.variables[operand1]]}")
+                    self.debug_log("ARRAY", f"Store: M[{array_index}] = M[{self.variables[operand1]}] = {self.memory[self.variables[operand1]]}", 1)
             elif op_code == 7:
-                if self.debug:
-                    print(f"DEBUG: Current instruction_labels: {self.instruction_labels}")
+                self.debug_log("LABEL", f"Current instruction_labels: {self.instruction_labels}", 1)
 
                 if sign == '+':
                     jumpaddress = self.instruction_labels[operand3]
-                    if self.debug:
-                        print(f"DEBUG: Incrementing memory[{self.variables[operand1]}] from {self.memory[self.variables[operand1]]} to {self.memory[self.variables[operand1]] + 1}")
+                    self.debug_log("LOOP", f"Incrementing M[{self.variables[operand1]}] from {self.memory[self.variables[operand1]]} to {self.memory[self.variables[operand1]] + 1}", 1)
                     self.memory[self.variables[operand1]] += 1
-                    if self.debug:
-                        print(f"DEBUG: Comparing memory[{self.variables[operand1]}]={self.memory[self.variables[operand1]]} < memory[{self.variables[operand2]}]={self.memory[self.variables[operand2]]}")
+                    self.debug_log("LOOP", f"Comparing M[{self.variables[operand1]}]={self.memory[self.variables[operand1]]} < M[{self.variables[operand2]}]={self.memory[self.variables[operand2]]}", 1)
                     if self.memory[self.variables[operand1]] < self.memory[self.variables[operand2]]:
-                        if self.debug:
-                            print(f"DEBUG: Jumping to instruction {jumpaddress}")
+                        self.debug_log("JUMP", f"Loop condition true, jumping to instruction {jumpaddress}", 1)
                         self.pc = jumpaddress
                     else:
-                        if self.debug:
-                            print(f"DEBUG: No jump, continuing to next instruction")
+                        self.debug_log("JUMP", f"Loop condition false, continuing to next instruction", 1)
                 else:
                     self.instruction_labels[operand1] = self.pc + 1
+                    self.debug_log("LABEL", f"Label {operand1} set to instruction {self.pc + 1}", 1)
             elif op_code == 8:
                 if sign == '+':
-                    if self.debug:
-                        print(f"DEBUG: Reading input into memory[{self.variables[operand2]}]")
-                    print("Please enter a number: ")
-                    self.memory[self.variables[operand3]] = int(input())
-                    if self.debug:
-                        print(f"DEBUG: Stored {self.memory[self.variables[operand3]]} in memory[{self.variables[operand3]}]")
+                    self.debug_log("I/O", f"Reading input {self.inputs[self.input_top]} into M[{self.variables[operand3]}] (input #{self.input_top})", 1)
+                    self.memory[self.variables[operand3]] = int(self.inputs[self.input_top])
+                    self.input_top += 1
                 else:
-                    if self.debug:
-                        print(f"DEBUG: Printing memory[{self.variables[operand1]}]={self.memory[self.variables[operand1]]}")
+                    self.debug_log("I/O", f"Output: M[{self.variables[operand1]}] = {self.memory[self.variables[operand1]]}", 1)
                     print(self.memory[self.variables[operand1]])
             elif op_code == 9:
-                if sign == '+' and operand1 == 0:
+                if sign == '+' and operand1 == 0 and operand2 == 0 and operand3 == 0:
                     self.running = False
             else:
                 print(f"Unknown operation code: {sign}{op_code}")
@@ -184,35 +194,39 @@ class SymbolicNumericInterpreter:
         else:
             if op_code == 7 and sign == '-':
                 self.instruction_labels[operand1] = self.pc + 1
-                if self.queud_label != None and self.queud_label == operand1:
+                if self.queued_label != None and self.queued_label == operand1:
                     self.block_execution = False
-                    self.queud_label = None
+                    self.queued_label = None
                     self.pc = self.instruction_labels[operand1]
  
     def run(self, instructions):
         if instructions is None:
             return
         
-        if self.debug:
-            print(f"DEBUG: Starting execution with {len(instructions)} instructions")
+        self.debug_log("INIT", f"Starting execution with {len(instructions)} instructions")
+        self.debug_log("INIT", f"Initial variables: {self.variables}")
         self.pc = 0
         self.running = True
         
         while self.running and self.pc < len(instructions):
-            if self.debug:
-                print(f"DEBUG: About to execute instruction at PC={self.pc}")
+            self.debug_log("EXEC", f"About to execute instruction at PC={self.pc}")
+            if self.block_execution:
+                self.debug_log("BLOCK", f"Execution blocked, waiting for label {self.queued_label}", 1)
+            
             instruction = instructions[self.pc]
             old_pc = self.pc
             self.execute_instruction(instruction)
+            
+            # Handle program counter updates
             if self.pc == old_pc:
                 self.pc += 1
-                if self.debug:
-                    print(f"DEBUG: PC incremented to {self.pc}")
+                self.debug_log("PC", f"Sequential execution: PC incremented to {self.pc}", 1)
             else:
-                if self.debug:
-                    print(f"DEBUG: PC jumped from {old_pc} to {self.pc}")
+                self.debug_log("PC", f"Control flow change: PC jumped from {old_pc} to {self.pc}", 1)
+            
+            self.debug_log("EXEC", "Instruction completed")
             if self.debug:
-                print("---")
+                print()
 
 
 def main():

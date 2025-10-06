@@ -1,9 +1,7 @@
-// assumption: we intialize constants from 0 to 9 in locations from 0 to 9. Assumed to be put
-// by te interpreter
 +0 111 001 000 // x
 +0 112 001 000 // result
 +0 113 001 000 // temp
-// +9 999 999 999 // end of data section
++9 999 999 999 // end of data section
 +8 000 000 111 // read x
 +2 111 111 112 // x^2
 +2 112 003 112 // 3*x^2
@@ -12,3 +10,5 @@
 +1 112 001 112 // y = y + 1
 -8 112 000 000 // print result
 +9 000 000 000 // stop
++9 999 999 999 // end of program
++0 000 000 005 // input section: input 5

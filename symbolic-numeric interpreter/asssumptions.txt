@@ -1,0 +1,11 @@
+# Some Assumptions
+
+## Memory Model
+- Fixed memory size of 1000 locations (0-999)
+- Memory locations 0-9 are pre-initialized with constants 0-9 respectively
+
+## Control Flow
+- Forward jumps block execution until target label is defined
+
+## Input/Output
+- Negative input values use "-0" format in input section
