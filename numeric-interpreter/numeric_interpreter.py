@@ -1,5 +1,11 @@
 import sys
+from enum import Enum
 import re
+
+class section(Enum):
+    CODE = 1
+    DATA = 2
+    INPUT = 3
 
 class NumericInterpreter:
     def __init__(self, debug=False):
@@ -8,6 +14,9 @@ class NumericInterpreter:
         self.running = True
         self.debug = debug
         self.initialize_constants()
+        self.section = 0
+        self.input_top = 0
+        self.inputs = []
     
     def initialize_constants(self):
         for i in range(10):
@@ -15,25 +24,26 @@ class NumericInterpreter:
     
     def load_program(self, filename):
         instructions = []
-        data_section = True
         try:
             with open(filename, 'r') as file:
                 for line in file:
                     line = line.strip()
                     if line and not line.startswith('//'):
                         instruction = self.parse_instruction(line)
-                        if instruction:
-                            if data_section:
-                                if (instruction['sign'] == '+' and 
-                                    instruction['op_code'] == 9 and 
-                                    instruction['operand1'] == 999 and 
-                                    instruction['operand2'] == 999 and 
-                                    instruction['operand3'] == 999):
-                                    data_section = False
+                        if instruction and (instruction['sign'] == '+' and instruction['op_code'] == 9 and instruction['operand1'] == 999 and instruction['operand3'] == 999):
+                                    self.section += 1
+                        else:
+                            if self.section == 0:
                                     continue
-                            else:
+                            elif self.section == 1:
                                 instructions.append(instruction)
+                            else: # means it's input section
+                                if instruction['sign'] == '+' and instruction['op_code'] == 0:
+                                    self.inputs.append(instruction['operand3'])
+                                elif instruction['sign'] == '-' and instruction['op_code'] == 0:
+                                    self.inputs.append(-1*instruction['operand3'])
             return instructions
+
         except FileNotFoundError:
             print(f"Error: File '{filename}' not found.")
             return None
@@ -129,8 +139,8 @@ class NumericInterpreter:
             if sign == '+':
                 if self.debug:
                     print(f"DEBUG: Reading input into memory[{operand3}]")
-                print("Please enter a number: ")
-                self.memory[operand3] = int(input())
+                self.memory[operand3] = int(self.inputs[self.input_top])
+                self.input_top += 1
                 if self.debug:
                     print(f"DEBUG: Stored {self.memory[operand3]} in memory[{operand3}]")
             else:

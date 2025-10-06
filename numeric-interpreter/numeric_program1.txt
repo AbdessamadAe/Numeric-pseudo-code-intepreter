@@ -22,3 +22,7 @@
 +1 011 001 011 // y
 -8 011 000 000 // print result
 +9 000 000 000 // stop
++9 999 999 999 // end of code section
++0 000 000 001 // input x
+
+

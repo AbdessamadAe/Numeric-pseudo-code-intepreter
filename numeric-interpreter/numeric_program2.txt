@@ -26,3 +26,8 @@
 -8 011 000 000 // print result
 +7 013 014 001 // incr i, test against number of elements, jump to loc 1
 +9 000 000 000 // stop
++9 999 999 999
++0 000 000 003 // input: number of elements
++0 000 000 001 // input x
++0 000 000 002 // input x
++0 000 000 003 // input x
